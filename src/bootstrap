@@ -1,0 +1,248 @@
+#!/opt/node
+
+const Http = require("http");
+const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });
+
+const { AWS_LAMBDA_RUNTIME_API, LAMBDA_TASK_ROOT, _HANDLER } = process.env;
+const debuggingEnabled =
+  !!process.env.EVERYNODE_DEBUG &&
+  !!(isNaN(process.env.EVERYNODE_DEBUG) || +process.env.EVERYNODE_DEBUG);
+
+const original = {
+  console: {
+    log: debuggingEnabled ? console.log : () => {},
+  },
+  http: {
+    request: Http.request,
+  },
+};
+
+original.console.log.bind(console);
+original.http.request.bind(Http);
+original.console.log("EVERYNODE BOOTSTRAP HANDLER INIT", process.env);
+
+// HTTP GET and POST request helper
+const request = async (method, path, headers, body) =>
+  new Promise((resolve, reject) => {
+    const options = { agent, headers, method };
+    const url = `http://${AWS_LAMBDA_RUNTIME_API}${path}`;
+    const req = original.http.request(url, options, (res) => {
+      if (res.statusCode !== 200 && res.statusCode !== 202) {
+        return reject(
+          new Error(
+            `Unexpected response from Runtime API at ${method} ${path}: HTTP ${res.statusCode}.`
+          )
+        );
+      }
+      res.setEncoding("utf8");
+      res.body = undefined;
+      res.on("data", (chunk) => {
+        res.body = (res.body || "") + chunk;
+      });
+      res.on("end", () => {
+        try {
+          res.body = res.body !== undefined && JSON.parse(res.body);
+        } catch (e) {
+          return reject(
+            new Error(
+              `Response from Runtime API at ${method} ${path} is not in the JSON format: ${e.message}`
+            )
+          );
+        }
+        return resolve(res);
+      });
+    });
+    if (body !== undefined) {
+      req.setHeader("content-type", "application/json");
+    }
+    return body !== undefined ? req.end(body) : req.end();
+  });
+
+// Unhandled exception logic
+let currentRequestId;
+let uncaughtError;
+const handleUncaughtException = async (error) => {
+  original.console.log(
+    "EVERYNODE LAYER BOOTSTRAP UNCAUGHT ERROR",
+    error.stack || error.message || error
+  );
+  uncaughtError = error || new Error("Unknown error");
+  if (currentRequestId) {
+    const errorType = "Handler.UnhandledError";
+    await request(
+      "POST",
+      `/2018-06-01/runtime/invocation/${currentRequestId}/error`,
+      {
+        "Lambda-Runtime-Function-Error-Type": errorType,
+      },
+      JSON.stringify({
+        errorMessage: (error && error.message) || "Unknown error",
+        errorType,
+        stackTrace: ((error && error.stack) || "").split("\n"),
+      })
+    );
+  }
+  await new Promise(() => setTimeout(() => process.exit(13), 200));
+};
+process.once("uncaughtException", handleUncaughtException);
+
+// Create request context as per https://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html
+const createContext = (headers) => {
+  const deadlineMs = Number.parseInt(headers["lambda-runtime-deadline-ms"], 10);
+  const parseOrUndefined = (text) => {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      return undefined;
+    }
+  };
+  const context = {
+    deadlineMs,
+    getRemainingTimeInMillis: () => deadlineMs - Date.now(),
+    identity: parseOrUndefined(headers["lambda-runtime-cognito-identity"]),
+    clientContext: parseOrUndefined(headers["lambda-runtime-client-context"]),
+    functionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+    functionVersion: process.env.AWS_LAMBDA_FUNCTION_VERSION,
+    invokedFunctionArn: headers["lambda-runtime-invoked-function-arn"],
+    memoryLimitInMB: process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE,
+    awsRequestId: headers["lambda-runtime-aws-request-id"],
+    logGroupName: process.env.AWS_LAMBDA_LOG_GROUP_NAME,
+    logStreamName: process.env.AWS_LAMBDA_LOG_STREAM_NAME,
+  };
+  return context;
+};
+
+(async function () {
+  // Load the Lamba function handler
+  let handler;
+  let isAsync;
+  let errorType = "Runtime.ErrorLoadingHandler";
+  try {
+    const [fileName, exportName] = _HANDLER.split(".");
+    if (!fileName || !exportName) {
+      errorType = "Runtime.NoSuchHandler";
+      throw new Error(
+        `The _HANDLER value '${_HANDLER}' must be in the {fileName}.{exportName} format.`
+      );
+    }
+    try {
+      const handlerModule = require(`${LAMBDA_TASK_ROOT}/${fileName}.js`);
+      handler = handlerModule[exportName];
+      if (typeof handler !== "function") {
+        errorType = "Runtime.WrongHandlerType";
+        throw new Error(
+          `The handler '${exportName}' is not a function: ${typeof handler}`
+        );
+      }
+      isAsync = handler.constructor.name === "AsyncFunction";
+      if (isAsync && handler.length !== 2) {
+        errorType = "Runtime.WrongHandlerType";
+        throw new Error(
+          `The handler '${exportName}' must be an async function that takes two arguments or a sync function that takes three arguments.`
+        );
+      }
+    } catch (e) {
+      throw new Error(`Error loading handler '${_HANDLER}': ${e.message}`);
+    }
+  } catch (e) {
+    await request(
+      "POST",
+      "/2018-06-01/runtime/init/error",
+      {
+        "Lambda-Runtime-Function-Error-Type": errorType,
+      },
+      JSON.stringify({
+        errorMessage: e.message,
+        errorType,
+        stackTrace: (e.stack || "").split("\n"),
+      })
+    );
+    process.exit(12);
+  }
+
+  // In an endless loop, fetch the next request and process it
+  while (!uncaughtError) {
+    // Get the next request from Runtime API
+    const { headers, body } = await request(
+      "GET",
+      "/2018-06-01/runtime/invocation/next"
+    );
+    const requestId = headers["lambda-runtime-aws-request-id"];
+    const traceId = headers["lambda-runtime-trace-id"];
+    if (traceId) {
+      process.env._X_AMZN_TRACE_ID = traceId;
+    } else {
+      delete process.env._X_AMZN_TRACE_ID;
+    }
+    const context = createContext(headers);
+    let error;
+    let data;
+    // Run the handler of the Lambda function
+    original.console.log("EVERYNODE BOOTSTRAP HANDLER CALL");
+    try {
+      currentRequestId = requestId;
+      if (isAsync) {
+        data = await handler(body, context);
+      } else {
+        data = await new Promise(async (resolve, reject) => {
+          let isDone;
+          const done = (error, data) => {
+            if (!isDone) {
+              idDone = true;
+              return error ? reject(error) : resolve(data);
+            }
+          };
+          let tmp;
+          try {
+            tmp = handler(body, context, done);
+          } catch (e) {
+            return reject(e);
+          }
+          // Sync functions may return a Promise instead of calling a callback
+          if (tmp instanceof Promise) {
+            let data;
+            let error;
+            try {
+              data = await tmp;
+            } catch (e) {
+              error = e;
+            }
+            done(error, data);
+          }
+        });
+      }
+      data = data !== undefined && JSON.stringify(data);
+    } catch (e) {
+      error = e;
+    } finally {
+      currentRequestId = undefined;
+    }
+    // Send the response or error back to Runtime API
+    original.console.log(
+      "EVERYNODE BOOTSTRAP HANDLER FINISHED",
+      error && (error.stack || error.message || error)
+    );
+    if (error) {
+      const errorType = "Handler.Error";
+      await request(
+        "POST",
+        `/2018-06-01/runtime/invocation/${requestId}/error`,
+        {
+          "Lambda-Runtime-Function-Error-Type": errorType,
+        },
+        JSON.stringify({
+          errorMessage: error.message || "Unknown error",
+          errorType,
+          stackTrace: (error.stack || "").split("\n"),
+        })
+      );
+    } else {
+      await request(
+        "POST",
+        `/2018-06-01/runtime/invocation/${requestId}/response`,
+        undefined,
+        data
+      );
+    }
+  }
+})();

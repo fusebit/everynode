@@ -1,0 +1,23 @@
+{
+  "name": "@fusebit/everynode",
+  "version": "1.0.0",
+  "description": "Run Any Node.js Version in AWS Lambda",
+  "license": "MIT",
+  "author": "https://fusebit.io",
+  "devDependencies": {
+    "semver": "^7.3.5",
+    "express": "4.17.1",
+    "jest": "^24.9.0",
+    "prettier": "^2.0.5",
+    "superagent": "6.1.0"
+  },
+  "scripts": {
+    "test": "jest --colors",
+    "coverage": "jest --colors --coverage",
+    "prettier": "prettier --write ./src ./test",
+    "build:one": "./src/build-one.mjs",
+    "build:catalog": "./src/build-catalog.mjs",
+    "build:new": "./src/build-new.mjs",
+    "clean": "rm -rf ./build"
+  }
+}
