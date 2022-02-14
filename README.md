@@ -43,7 +43,7 @@ aws lambda create-function --function-name hello17 \
 Last, call the function:
 
 ```bash
-aws lambda invoke --function-name hello17 --cli-binary-format raw-in-base64-out response.json
+aws lambda invoke --function-name hello17 response.json
 cat response.json
 ```
 
