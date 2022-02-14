@@ -4,10 +4,9 @@
 name: Deploy Lambda Layers For New Node.js Releases
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+  - cron: "0 */6 * * *"
 
 jobs:
   build:
@@ -20,9 +19,8 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '16.x'
-    - name: Install global dependencies
-      run: npm i -g zx
-    - name: Install project dependencies
-      run: npm ci
-    - name: Run tests
-      run: npm test
+    - name: Check for new Node.js releases and build new layers
+      run: |
+        npm i -g zx
+        npm ci
+        npm test
