@@ -45,6 +45,7 @@ for (const region of regions) {
 }
 
 const dir = `${__dirname}/../build`;
+await $`mkdir -p ${dir}`;
 
 // Upload JSON catalog
 Fs.writeFileSync(`${dir}/layers.json`, JSON.stringify(catalogUpdate, null, 2));
