@@ -50,11 +50,11 @@ if (process.env.SLACK_URL) {
   await fetch(process.env.SLACK_URL, {
     method: "post",
     body: JSON.stringify({
-      text: `:rocket: Shipped AWS Lambda layers for Node.js **v${version}**:\n${Object.keys(
+      text: `:rocket: Shipped AWS Lambda layers for Node.js *v${version}*:\n${Object.keys(
         results
       )
         .sort()
-        .map((region) => `**${region}**: ${results[region]}\n`)}`,
+        .map((region) => `*${region}*: ${results[region]}\n`)}`,
     }),
     headers: { "Content-Type": "application/json" },
   });

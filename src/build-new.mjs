@@ -109,9 +109,9 @@ try {
     console.log("Newly published layers", JSON.stringify(newLayers, null, 2));
   } else {
     await sendToSlack(
-      `:information_source: There are no new Node.js releases since the last run. Latest Node.js version is **v${
+      `:information_source: There are no new Node.js releases since the last run. Latest Node.js version is *v${
         Semver.sort(availableVersions)[availableVersions.length - 1]
-      }**.`
+      }*.`
     );
     console.log("No new layers were published");
   }
