@@ -5,6 +5,7 @@
 
 let [_, __, ___, regions] = process.argv;
 regions = regions ? regions.split(",") : require("./regions.json");
+const Fs = require("fs");
 
 const getLayers = async (region) => {
   const versions = {}; // version -> arn
@@ -43,11 +44,11 @@ for (const region of regions) {
   catalogUpdate[region] = await getLayers(region);
 }
 
+const dir = `${__dirname}/../build`;
+
 // Upload JSON catalog
-let upload = $`aws s3 cp - s3://fusebit-io-cdn/everynode/layers.json --content-type application/json --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
-upload.stdin.write(JSON.stringify(catalogUpdate, null, 2));
-upload.stdin.end();
-await upload;
+Fs.writeFileSync(`${dir}/layers.json`, JSON.stringify(catalogUpdate, null, 2));
+await $`aws s3 cp ${dir}/layers.json s3://fusebit-io-cdn/everynode/layers.json --content-type application/json --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
 
 // Upload TXT catalog to be used for scripting
 // curl https://cdn.fusebit.io/everynode/layers.txt --no-progress-meter | grep 'us-west-1 17.4.0' | awk '{ print $3 }'
@@ -57,10 +58,8 @@ Object.keys(catalogUpdate).forEach((region) =>
     lines.push(`${region} ${version} ${catalogUpdate[region][version]}`);
   })
 );
-upload = $`aws s3 cp - s3://fusebit-io-cdn/everynode/layers.txt --content-type text/plain --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
-upload.stdin.write(lines.join("\n"));
-upload.stdin.end();
-await upload;
+Fs.writeFileSync(`${dir}/layers.txt`, lines.join("\n"));
+await $`aws s3 cp ${dir}/layers.txt s3://fusebit-io-cdn/everynode/layers.txt --content-type text/plain --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
 
 if (process.env.SLACK_URL) {
   await fetch(process.env.SLACK_URL, {
