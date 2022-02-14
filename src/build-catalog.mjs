@@ -49,7 +49,7 @@ await $`mkdir -p ${dir}`;
 
 // Upload JSON catalog
 Fs.writeFileSync(`${dir}/layers.json`, JSON.stringify(catalogUpdate, null, 2));
-await $`aws s3 cp ${dir}/layers.json s3://fusebit-io-cdn/everynode/layers.json --content-type application/json --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
+await $`aws s3 cp ${dir}/layers.json s3://fusebit-io-cdn/everynode/layers.json --content-type application/json --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf --region us-east-1`;
 
 // Upload TXT catalog to be used for scripting
 // curl https://cdn.fusebit.io/everynode/layers.txt --no-progress-meter | grep 'us-west-1 17.4.0' | awk '{ print $3 }'
@@ -60,7 +60,7 @@ Object.keys(catalogUpdate).forEach((region) =>
   })
 );
 Fs.writeFileSync(`${dir}/layers.txt`, lines.join("\n"));
-await $`aws s3 cp ${dir}/layers.txt s3://fusebit-io-cdn/everynode/layers.txt --content-type text/plain --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf`;
+await $`aws s3 cp ${dir}/layers.txt s3://fusebit-io-cdn/everynode/layers.txt --content-type text/plain --cache-control no-cache --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers full=id=332f10bace808ea274aecc80e667990adc92dc993a597a42622105dc1f0050bf --region us-east-1`;
 
 if (process.env.SLACK_URL) {
   await fetch(process.env.SLACK_URL, {
