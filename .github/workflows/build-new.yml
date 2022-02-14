@@ -6,26 +6,33 @@ name: Deploy Lambda Layers For New Node.js Releases
 on:
   workflow_dispatch:
   schedule:
-  - cron: "0 */6 * * *"
+    - cron: "0 */6 * * *"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
-    - name: Check for new Node.js releases and build new layers
-      env:
-        SLACK_URL: ${{ secrets.SLACK_URL }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_072 }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_072 }}
-      run: |
-        npm i -g zx
-        npm ci
-        npm test
-        npm run build:catalog
+      - uses: actions/checkout@v2
+      - name: Upgrade aws-cli
+        run: >
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o
+          "awscliv2.zip"
+          unzip awscliv2.zip >/dev/null
+          sudo ./aws/install --update
+          /usr/local/bin/aws --version
+          aws --version
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+      - name: Check for new Node.js releases and build new layers
+        env:
+          SLACK_URL: ${{ secrets.SLACK_URL }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_072 }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_072 }}
+        run: |
+          npm i -g zx
+          npm ci
+          npm test
+          npm run build:catalog
