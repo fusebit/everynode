@@ -20,7 +20,12 @@ jobs:
       with:
         node-version: '16.x'
     - name: Check for new Node.js releases and build new layers
+      env:
+        SLACK_URL: ${{ secrets.SLACK_URL }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_072 }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_072 }}
       run: |
         npm i -g zx
         npm ci
         npm test
+        npm run build:catalog
