@@ -1,13 +1,13 @@
 # Run Any Node.js Version in AWS Lambda
 
-Everynode allows you to run **any version of Node.js in AWS Lambda**, in any commercial AWS region.
+Everynode allows you to run **any version of Node.js in AWS Lambda**, in any commercial AWS region. We add support for new Node.js versions within **six hours** of the release.
 
 <img width="689" alt="image" src="https://user-images.githubusercontent.com/822369/153952823-df80628b-5d86-467c-b3a5-c4494e28a8b0.png">
 
 - Create and run AWS Lambda functions using any version of Node.js >= 10.
 - **New releases of Node.js are supported within 6 hours**.
 - Deploy to any commercial AWS region.
-- No magic or tricks, open source at [github.com/fusebit/everynode](https://github.com/fusebit/everynode).
+- No magic or tricks - open source.
 - Free forever, created and maintained for developers like you by developers at [Fusebit](https://fusebit.io).
 
 # Quickstart
