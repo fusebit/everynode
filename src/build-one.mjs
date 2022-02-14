@@ -46,4 +46,17 @@ for (let i = 0; i < regions.length; i++) {
     console.log(`Error deploying ${version} to ${region}`);
   }
 }
+if (process.env.SLACK_URL) {
+  await fetch(process.env.SLACK_URL, {
+    method: "post",
+    body: JSON.stringify({
+      text: `:rocket: Shipped AWS Lambda layers for Node.js **v${version}**:\n${Object.keys(
+        results
+      )
+        .sort()
+        .map((region) => `**${region}**: ${results[region]}\n`)}`,
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
+}
 console.log(JSON.stringify(results, null, 2));

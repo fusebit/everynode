@@ -62,6 +62,16 @@ upload.stdin.write(lines.join("\n"));
 upload.stdin.end();
 await upload;
 
+if (process.env.SLACK_URL) {
+  await fetch(process.env.SLACK_URL, {
+    method: "post",
+    body: JSON.stringify({
+      text: `:rocket: Updated layer catalog on CDN:\nhttps://cdn.fusebit.io/everynode/layers.json\nhttps://cdn.fusebit.io/everynode/layers.txt`,
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 await sleep(2000); // Give CDN a chance to catch up
 
 console.log(catalogUpdate);
