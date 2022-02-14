@@ -10,7 +10,7 @@ Everynode allows you to run **any version of Node.js in AWS Lambda**, in any com
 - No magic or tricks - open source.
 - Free forever, created and maintained for developers like you by developers at [Fusebit](https://fusebit.io).
 
-# Quickstart
+## Quickstart
 
 Let's deploy a _Hello, World_ Lambda function using Node.js 17.5.0 to us-west-1.
 
