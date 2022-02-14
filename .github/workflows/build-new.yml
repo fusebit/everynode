@@ -15,9 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Upgrade aws-cli
-        run: >
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o
-          "awscliv2.zip"
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip >/dev/null
           sudo ./aws/install --update
           /usr/local/bin/aws --version
