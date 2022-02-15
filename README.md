@@ -85,7 +85,7 @@ Yes. Support for any version of Node.js in AWS Lambda is a by-product of the eng
 
 **How can I get in touch with feedback, questions, etc?**
 
-You can [join out community Slack, Discord, or e-mail us](https://fusebit.io/contact/). You can also reach us on Twitter [@fusebitio](https://twitter.com/fusebitio).
+You can [join our community Slack, Discord, or e-mail us](https://fusebit.io/contact/). You can also reach us on Twitter [@fusebitio](https://twitter.com/fusebitio). You can also file an issue in this repo.
 
 **How do I report an issue?**
 
