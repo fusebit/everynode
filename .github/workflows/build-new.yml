@@ -34,4 +34,4 @@ jobs:
           npm i -g zx
           npm ci
           npm test
-          npm run build:catalog
+          npm run build:new
