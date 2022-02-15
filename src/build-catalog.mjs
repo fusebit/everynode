@@ -3,7 +3,9 @@
 // Builds a catalog of layers across regions and publishes to Fusebit CDN
 // at https://cdn.fusebit.io/everynode/layers.json
 
-let [_, __, ___, regions] = process.argv;
+const Semver = require("semver");
+let [_, __, ___, regions, versionSelector] = process.argv;
+versionSelector = versionSelector || ">=11";
 regions = regions ? regions.split(",") : require("./regions.json");
 const Fs = require("fs");
 
@@ -28,7 +30,7 @@ const getLayers = async (region) => {
             layer.LatestMatchingVersion.Description?.match(
               /node\@([^\s]+)/
             )?.[1];
-          if (version) {
+          if (version && Semver.satisfies(version, versionSelector)) {
             versions[version] = layer.LatestMatchingVersion.LayerVersionArn;
           }
         }

@@ -5,7 +5,7 @@
 try {
   const Semver = require("semver");
   let [_, __, ___, versionSelector, regions] = process.argv;
-  versionSelector = versionSelector || ">=10";
+  versionSelector = versionSelector || ">=11";
   regions = regions ? regions.split(",") : require("./regions.json");
 
   const sendToSlack = async (text) => {
