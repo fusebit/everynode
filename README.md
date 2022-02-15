@@ -1,5 +1,6 @@
 <a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="150" src="https://cdn.fusebit.io/assets/logo/logo-full-orange.png" alt="Fusebit"></a>
-# Run Any Node.js Version in AWS Lambda 
+
+# Run Any Node.js Version in AWS Lambda
 
 Everynode allows you to run **any version of Node.js in AWS Lambda**, in any commercial AWS region. We add support for new Node.js versions within **six hours** of the release.
 
@@ -58,7 +59,7 @@ And voila, welcome to Node.js v17.5.0 in AWS Lambda:
 
 ## Any Region, Any Node.js Version, One Lambda
 
-The Everynode project provides pre-built [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) that contain [custom AWS Lambda runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html) for every Node.js version >=10 in all commercial AWS regions. When you want to create a Lambda function using a specific Node.js version in a specific AWS region, you need to choose the right AWS layer for it.
+The Everynode project provides pre-built [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) that contain [custom AWS Lambda runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html) for every Node.js version >=11 in all commercial AWS regions. When you want to create a Lambda function using a specific Node.js version in a specific AWS region, you need to choose the right AWS layer for it.
 
 Each combination of AWS region and Node.js version has a distinct layer ARN you need to use when deploying a Lambda function to that region. You can find the ARN of the layer you need from the catalog we publish:
 
