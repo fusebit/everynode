@@ -1,7 +1,4 @@
-<a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="150" src="https://cdn.fusebit.io/assets/logo/logo-full-orange.png" alt="Fusebit"></a>
-
-<!--<img src="https://user-images.githubusercontent.com/822369/154174436-66c6ea8f-0ed1-4e1f-b090-a81018d0bbdc.png#gh-dark-mode-only" width="150"><img src="https://user-images.githubusercontent.com/822369/154174549-178ab93e-9f28-4cfe-aeb6-e49c433ca5d5.png#gh-light-mode-only" width="150">
-<a href="https://fusebit.io?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo">Created by Fusebit</a>-->
+<a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="200" src="https://user-images.githubusercontent.com/822369/154325005-d5576316-6cfd-4190-af02-d62024c5e659.png" alt="Fusebit"></a>
 
 # Run Any Node.js Version in AWS Lambda
 
