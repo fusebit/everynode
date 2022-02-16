@@ -1,5 +1,8 @@
 <a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="150" src="https://cdn.fusebit.io/assets/logo/logo-full-orange.png" alt="Fusebit"></a>
 
+<!--<img src="https://user-images.githubusercontent.com/822369/154174436-66c6ea8f-0ed1-4e1f-b090-a81018d0bbdc.png#gh-dark-mode-only" width="150"><img src="https://user-images.githubusercontent.com/822369/154174549-178ab93e-9f28-4cfe-aeb6-e49c433ca5d5.png#gh-light-mode-only" width="150">
+<a href="https://fusebit.io?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo">Created by Fusebit</a>-->
+
 # Run Any Node.js Version in AWS Lambda
 
 Everynode allows you to run **any version of Node.js in AWS Lambda**, in any commercial AWS region. We add support for new Node.js versions within **six hours** of the release.
@@ -102,6 +105,3 @@ We try not to. But since Everynode is OSS, you can check yourself. You can even 
 **Do you have cool stickers?**
 
 Yes. Get in touch and we will send you some.
-
-![Fusebit](https://cdn.fusebit.io/assets/logo/v2/logo-full-light.png#gh-dark-mode-only)
-![Fusebit](https://cdn.fusebit.io/assets/logo/v2/logo-full.png#gh-light-mode-only)
