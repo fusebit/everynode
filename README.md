@@ -102,3 +102,6 @@ We try not to. But since Everynode is OSS, you can check yourself. You can even 
 **Do you have cool stickers?**
 
 Yes. Get in touch and we will send you some.
+
+![Fusebit](https://cdn.fusebit.io/assets/logo/v2/logo-full-light.png#gh-dark-mode-only)
+![Fusebit](https://cdn.fusebit.io/assets/logo/v2/logo-full.png#gh-light-mode-only)
