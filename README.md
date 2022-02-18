@@ -1,4 +1,4 @@
-<a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="150" src="https://cdn.fusebit.io/assets/logo/logo-full-orange.png" alt="Fusebit"></a>
+<a href="https://fusebit.io ?utm_source=github.com&utm_medium=referral&utm_campaign=everynode&utm_content=readme-md-logo"><img width="200" src="https://user-images.githubusercontent.com/822369/154325005-d5576316-6cfd-4190-af02-d62024c5e659.png" alt="Fusebit"></a>
 
 # Run Any Node.js Version in AWS Lambda
 
