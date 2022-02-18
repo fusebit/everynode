@@ -1,4 +1,6 @@
-#!/opt/node
+#!/opt/node/bin/node
+
+process.env.PATH = "/opt/node/bin:" + process.env.PATH;
 
 const Http = require("http");
 const agent = new Http.Agent({ keepAlive: true, maxSockets: 1 });

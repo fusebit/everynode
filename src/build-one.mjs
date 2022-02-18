@@ -20,8 +20,8 @@ const layer = `node-${version.replace(/\./g, "_")}`;
 await $`rm -rf ${dir}; mkdir -p ${dir}`;
 process.chdir(dir);
 await $`curl https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.gz --output node.tar.gz`;
-await $`tar -xvf node.tar.gz node-v${version}-linux-x64/bin/node`;
-await $`zip -j ${zip} ../../src/bootstrap ./node-v${version}-linux-x64/bin/node`;
+await $`tar -xvf node.tar.gz; mv node-v${version}-linux-x64 node`;
+await $`zip -j ${zip} ../../src/bootstrap; zip -r -y ${zip} node`;
 
 // For each region, upload to S3, create layer version, and set permissions
 const results = {};

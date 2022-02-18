@@ -7,6 +7,15 @@ try {
   let [_, __, ___, versionSelector, regions] = process.argv;
   versionSelector = versionSelector || ">=11";
   regions = regions ? regions.split(",") : require("./regions.json");
+  const forceBuild = process.env.EVERYNODE_FORCE_BUILD == 1;
+
+  console.log(
+    forceBuild ? "REBUILDING ALL" : "BUILDING NEW",
+    "NODE.JS VERSIONS",
+    versionSelector,
+    "IN REGIONS",
+    regions.join(", ")
+  );
 
   const sendToSlack = async (text) => {
     if (process.env.SLACK_URL) {
@@ -18,7 +27,7 @@ try {
     }
   };
 
-  const getMissingLayers = async (availableVersions) => {
+  const getMissingLayers = async (availableVersions, forceBuild) => {
     // Get current catalog
     let publishedLayers = await fetch(
       "https://cdn.fusebit.io/everynode/layers.json"
@@ -34,7 +43,7 @@ try {
     const missingLayers = {};
     regions.forEach((region) =>
       availableVersions.forEach((version) => {
-        if (!publishedLayers[region]?.[version]) {
+        if (!publishedLayers[region]?.[version] || forceBuild) {
           missingLayers[version] = missingLayers[version] || [];
           missingLayers[version].push(region);
         }
@@ -62,7 +71,7 @@ try {
   console.log("Published Node.js versions:", JSON.stringify(availableVersions));
 
   // Get missing layers
-  const missingLayers = await getMissingLayers(availableVersions);
+  const missingLayers = await getMissingLayers(availableVersions, forceBuild);
   console.log(
     "Missing layers and regions:",
     JSON.stringify(missingLayers, null, 2)
@@ -88,7 +97,7 @@ try {
   }
 
   // Get missing layers again to cross-check
-  const stillMissingLayers = await getMissingLayers(availableVersions);
+  const stillMissingLayers = await getMissingLayers(availableVersions, false);
   const newLayers = missingLayers;
   Object.keys(stillMissingLayers).forEach((version) => {
     const stillMissingRegions = stillMissingLayers[version];
