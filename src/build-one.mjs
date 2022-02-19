@@ -46,6 +46,9 @@ for (let i = 0; i < regions.length; i++) {
     console.log(`Error deploying ${version} to ${region}`);
   }
 }
+
+await $`rm -rf ${dir}`;
+
 if (process.env.SLACK_URL) {
   await fetch(process.env.SLACK_URL, {
     method: "post",
