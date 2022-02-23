@@ -93,7 +93,7 @@ You can [join our community Slack, Discord, or e-mail us](https://fusebit.io/con
 
 **What's included in the custom runtime?**
 
-Only the Node.js executable of the specific version. In particular, the `aws-sdk` module is **not** included. If you need to use it, you must include it in your Lambda deployment package.
+Only the full release of Node.js (including `node`, `npm`, and `npx`). In particular, the `aws-sdk` module is **not** included. If you need to use it, you must include it in your Lambda deployment package.
 
 **Are you mining bitcoins in my AWS account?**
 
