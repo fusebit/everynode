@@ -190,7 +190,7 @@ const createContext = (headers) => {
           let isDone;
           const done = (error, data) => {
             if (!isDone) {
-              idDone = true;
+              isDone = true;
               return error ? reject(error) : resolve(data);
             }
           };
