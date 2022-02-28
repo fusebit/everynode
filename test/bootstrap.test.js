@@ -3,6 +3,9 @@ const Superagent = require("superagent");
 const Path = require("path");
 const spawn = require("child_process").spawn;
 
+const itif = (condition) => (condition ? it : it.skip);
+const major = +process.versions.node.split(".")[0];
+
 const successResult = {
   method: "POST",
   path: "/2018-06-01/runtime/invocation/1234/response",
@@ -85,10 +88,10 @@ const runBootstrap = async (env) => {
 describe("Bootstrap", () => {
   let runtimeApi;
 
-  const createEnv = (handler) => {
+  const createEnv = (handler, es6) => {
     const env = {
       _HANDLER: `${handler}.handler`,
-      LAMBDA_TASK_ROOT: Path.join(__dirname, "handlers"),
+      LAMBDA_TASK_ROOT: Path.join(__dirname, "handlers", es6 ? "es6" : ""),
       AWS_LAMBDA_RUNTIME_API: runtimeApi.host,
       _X_AMZN_TRACE_ID: "1234",
     };
@@ -109,6 +112,23 @@ describe("Bootstrap", () => {
 
   test("asyncHelloWorld", async () => {
     const env = createEnv("asyncHelloWorld");
+    await runBootstrap(env);
+    const trace = runtimeApi.getTrace();
+    // console.log("TRACE", JSON.stringify(trace, null, 2));
+    expect(Array.isArray(trace)).toBe(true);
+    expect(trace.length).toBe(2);
+    expect(trace[0]).toMatchObject({
+      request: { method: "GET" },
+      response: { status: 200 },
+    });
+    expect(trace[1]).toMatchObject({
+      request: successResult,
+      response: { status: 202 },
+    });
+  });
+
+  itif(major >= 14)("asyncHelloWorld ES6", async () => {
+    const env = createEnv("asyncHelloWorld", true);
     await runBootstrap(env);
     const trace = runtimeApi.getTrace();
     // console.log("TRACE", JSON.stringify(trace, null, 2));
@@ -161,6 +181,23 @@ describe("Bootstrap", () => {
 
   test("syncHelloWorld", async () => {
     const env = createEnv("syncHelloWorld");
+    await runBootstrap(env);
+    const trace = runtimeApi.getTrace();
+    // console.log("TRACE", JSON.stringify(trace, null, 2));
+    expect(Array.isArray(trace)).toBe(true);
+    expect(trace.length).toBe(2);
+    expect(trace[0]).toMatchObject({
+      request: { method: "GET" },
+      response: { status: 200 },
+    });
+    expect(trace[1]).toMatchObject({
+      request: successResult,
+      response: { status: 202 },
+    });
+  });
+
+  itif(major >= 14)("syncHelloWorld ES6", async () => {
+    const env = createEnv("syncHelloWorld", true);
     await runBootstrap(env);
     const trace = runtimeApi.getTrace();
     // console.log("TRACE", JSON.stringify(trace, null, 2));
@@ -319,37 +356,6 @@ describe("Bootstrap", () => {
     });
     expect(trace[1]).toMatchObject({
       request: successResult,
-      response: { status: 202 },
-    });
-  });
-
-  test("asyncHandlerWrongArity", async () => {
-    const env = createEnv("asyncHandlerWrongArity");
-    await runBootstrap(env);
-    const trace = runtimeApi.getTrace();
-    // console.log("TRACE", JSON.stringify(trace, null, 2));
-    expect(Array.isArray(trace)).toBe(true);
-    expect(trace.length).toBe(1);
-    expect(trace[0]).toMatchObject({
-      request: {
-        method: "POST",
-        path: "/2018-06-01/runtime/init/error",
-        headers: {
-          "lambda-runtime-function-error-type": "Runtime.WrongHandlerType",
-          "content-type": "application/json",
-        },
-        payload: {
-          errorMessage: expect.stringContaining(
-            "Error loading handler 'asyncHandlerWrongArity.handler': The handler 'handler' must be an async function that takes two arguments or a sync function that takes three arguments."
-          ),
-          errorType: "Runtime.WrongHandlerType",
-          stackTrace: expect.arrayContaining([
-            expect.stringContaining(
-              "Error loading handler 'asyncHandlerWrongArity.handler': The handler 'handler' must be an async function that takes two arguments or a sync function that takes three arguments."
-            ),
-          ]),
-        },
-      },
       response: { status: 202 },
     });
   });

@@ -95,6 +95,10 @@ You can [join our community Slack, Discord, or e-mail us](https://fusebit.io/con
 
 Only the full release of Node.js (including `node`, `npm`, and `npx`). In particular, the `aws-sdk` module is **not** included. If you need to use it, you must include it in your Lambda deployment package.
 
+**Is ES6 supported?**
+
+Yes, Lambda handlers can be implemented as ES6 modules in Node.js >= 14.
+
 **Are you mining bitcoins in my AWS account?**
 
 We try not to. But since Everynode is OSS, you can check yourself. You can even deploy your own copies of the custom Lambda layers to your own AWS account.

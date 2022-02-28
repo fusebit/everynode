@@ -25,27 +25,31 @@ await $`zip -j ${zip} ../../src/bootstrap; zip -r -y ${zip} node`;
 
 // For each region, upload to S3, create layer version, and set permissions
 const results = {};
-for (let i = 0; i < regions.length; i++) {
-  const region = regions[i];
-  const bucket = `everynode.${region}.fusebit.io`;
-  console.log(`Deploying ${version} to ${region}...`);
-  try {
-    let { exitCode } = await nothrow(
-      $`aws s3 ls s3://${bucket} --region ${region}`
-    );
-    if (exitCode) {
-      await $`aws s3 mb s3://${bucket} --region ${region}`;
-    }
-    await $`aws s3 cp ${zip} s3://${bucket}/${zip} --region ${region}`;
-    let { stdout: layerVersion } =
-      await $`aws lambda publish-layer-version --layer-name ${layer} --content S3Bucket=${bucket},S3Key=${zip} --compatible-runtimes provided --description 'node@${version} @fusebit/everynode@${thisVersion}' --region ${region}`;
-    layerVersion = JSON.parse(layerVersion);
-    await $`aws lambda add-layer-version-permission --layer-name ${layer} --version-number ${layerVersion.Version}  --principal "*" --statement-id publish --action lambda:GetLayerVersion --region ${region}`;
-    results[region] = layerVersion.LayerVersionArn;
-  } catch (e) {
-    console.log(`Error deploying ${version} to ${region}`);
-  }
-}
+const regionDeployment = regions.map(
+  (region) =>
+    new Promise(async (resolve) => {
+      const bucket = `everynode.${region}.fusebit.io`;
+      console.log(`Deploying ${version} to ${region}...`);
+      try {
+        let { exitCode } = await nothrow(
+          $`aws s3 ls s3://${bucket} --region ${region}`
+        );
+        if (exitCode) {
+          await $`aws s3 mb s3://${bucket} --region ${region}`;
+        }
+        await $`aws s3 cp ${zip} s3://${bucket}/${zip} --region ${region}`;
+        let { stdout: layerVersion } =
+          await $`aws lambda publish-layer-version --layer-name ${layer} --content S3Bucket=${bucket},S3Key=${zip} --compatible-runtimes provided --description 'node@${version} @fusebit/everynode@${thisVersion}' --region ${region}`;
+        layerVersion = JSON.parse(layerVersion);
+        await $`aws lambda add-layer-version-permission --layer-name ${layer} --version-number ${layerVersion.Version}  --principal "*" --statement-id publish --action lambda:GetLayerVersion --region ${region}`;
+        results[region] = layerVersion.LayerVersionArn;
+      } catch (e) {
+        console.log(`Error deploying ${version} to ${region}`);
+      }
+      resolve();
+    })
+);
+await Promise.all(regionDeployment);
 
 await $`rm -rf ${dir}`;
 

@@ -128,8 +128,18 @@ const createContext = (headers) => {
       );
     }
     try {
-      const handlerModule = require(`${LAMBDA_TASK_ROOT}/${fileName}.js`);
-      handler = handlerModule[exportName];
+      const major = +process.versions.node.split(".")[0];
+      const moduleName = `${LAMBDA_TASK_ROOT}/${fileName}.js`;
+      if (major >= 14) {
+        // Load as either CJS or ES6
+        const module = await import(moduleName);
+        handler =
+          module[exportName] || (module.default && module.default[exportName]);
+      } else {
+        // Load as CJS
+        const module = require(moduleName);
+        handler = module[exportName];
+      }
       if (typeof handler !== "function") {
         errorType = "Runtime.WrongHandlerType";
         throw new Error(
@@ -137,12 +147,6 @@ const createContext = (headers) => {
         );
       }
       isAsync = handler.constructor.name === "AsyncFunction";
-      if (isAsync && handler.length !== 2) {
-        errorType = "Runtime.WrongHandlerType";
-        throw new Error(
-          `The handler '${exportName}' must be an async function that takes two arguments or a sync function that takes three arguments.`
-        );
-      }
     } catch (e) {
       throw new Error(`Error loading handler '${_HANDLER}': ${e.message}`);
     }
