@@ -40,7 +40,7 @@ aws lambda create-function --function-name hello17 \
   --region us-west-1 \
   --zip-file fileb://function.zip \
   --handler function.handler \
-  --runtime provided
+  --runtime provided \
   --role {iam-role-arn}
 ```
 
