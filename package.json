@@ -1,6 +1,6 @@
 {
   "name": "@fusebit/everynode",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Run Any Node.js Version in AWS Lambda",
   "license": "MIT",
   "author": "https://fusebit.io",
