@@ -205,7 +205,7 @@ const createContext = (headers) => {
             return reject(e);
           }
           // Sync functions may return a Promise instead of calling a callback
-          if (tmp instanceof Promise) {
+          if (tmp && typeof tmp.then === 'function') {
             let data;
             let error;
             try {
